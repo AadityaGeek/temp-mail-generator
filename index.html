@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Real Temp Mail</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="sticky-header">
+      <div class="header-container">
+        <div class="logo">
+          <i class="fas fa-envelope-open-text"></i> Temp Mail
+        </div>
+        <nav class="main-nav">
+          <ul>
+            <li><a href="#home" class="active">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#how-to-use">How to Use</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+        <button class="mobile-menu-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <div id="alert" class="alert">
+        <span id="alertMessage"></span>
+        <button class="alert-close" onclick="closeAlert()">×</button>
+      </div>
+      <div class="section" id="home">
+        <h1><i class="fas fa-envelope-open-text"></i> Temp Mail Generator</h1>
+
+        <div class="email-generator">
+          <button onclick="generateAccount()" class="generate-button">
+            <i class="fas fa-random"></i> Generate Temp Email
+          </button>
+
+          <div class="email-box">
+            <label>Your Temp Email:</label>
+            <div class="email-display">
+              <span id="emailDisplay">---</span>
+              <button
+                onclick="copyEmail()"
+                class="icon-button"
+                title="Copy Email"
+              >
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-section">
+        <button class="action-button copy" onclick="copyEmail()">
+          <i class="fas fa-copy"></i>
+          Copy
+        </button>
+        <button class="action-button refresh" onclick="manualRefresh()">
+          <i class="fas fa-sync-alt"></i>
+          Refresh
+        </button>
+        <button class="action-button delete">
+          <i class="fas fa-trash"></i>
+          Delete
+        </button>
+      </div>
+
+      <div id="service" class="section">
+        <div class="inbox-container">
+          <div class="inbox-header">
+            <h2><i class="fas fa-inbox"></i> Inbox</h2>
+            <button
+              onclick="manualRefresh()"
+              class="icon-button"
+              title="Refresh Inbox"
+            >
+              <i id="refreshIcon" class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+
+          <div id="inbox" class="inbox">
+            <p>No messages yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="about" class="section info-section">
+        <h2>
+          <i class="fas fa-info-circle"></i> Understanding Temporary Email
+        </h2>
+
+        <div class="info-content">
+          <h3>What is Temporary E-mail?</h3>
+          <p>
+            In today's digital world, almost every online service requires an
+            email address for registration. While essential, this often leads to
+            unwanted spam and privacy concerns. Our temporary email service
+            provides a simple solution - instant, disposable email addresses
+            that protect your primary inbox.
+          </p>
+
+          <div class="features-grid">
+            <div class="feature-card">
+              <i class="fas fa-bolt"></i>
+              <h4>Instant Generation</h4>
+              <p>
+                Create a new temporary email address with just one click - no
+                registration required.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <i class="fas fa-copy"></i>
+              <h4>Easy Copy</h4>
+              <p>
+                Copy your temporary email address to clipboard instantly with
+                our convenient copy button.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <i class="fas fa-sync-alt"></i>
+              <h4>Auto Refresh</h4>
+              <p>
+                Inbox automatically refreshes every 5 seconds to show new
+                messages instantly.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <i class="fas fa-trash"></i>
+              <h4>Quick Delete</h4>
+              <p>
+                Delete your current email and generate a new one whenever you
+                want.
+              </p>
+            </div>
+          </div>
+
+          <h3 id="how-to-use">How to Use Our Service</h3>
+          <div class="steps-box">
+            <ol class="steps-list">
+              <li>
+                <span class="step-number">1</span>
+                <div class="step-content">
+                  <h4>Generate Email</h4>
+                  <p>
+                    Click the "Generate Temp Email" button to create your
+                    temporary email address.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span class="step-number">2</span>
+                <div class="step-content">
+                  <h4>Copy Address</h4>
+                  <p>
+                    Use the copy button to copy your temporary email address to
+                    clipboard.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span class="step-number">3</span>
+                <div class="step-content">
+                  <h4>Check Messages</h4>
+                  <p>
+                    Your inbox will automatically refresh to show new messages.
+                    Click any message to view its full content.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span class="step-number">4</span>
+                <div class="step-content">
+                  <h4>Delete When Done</h4>
+                  <p>
+                    Click the delete button to remove the current email and
+                    generate a new one if needed.
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <h3>Common Use Cases</h3>
+          <div class="use-cases-section">
+            <ul class="use-cases">
+              <li>
+                <i class="fas fa-angle-right"></i> Sign up for free trials
+                without risking spam
+              </li>
+              <li>
+                <i class="fas fa-angle-right"></i> Test website registrations
+                and notifications
+              </li>
+              <li>
+                <i class="fas fa-angle-right"></i> Protect your privacy when
+                using public services
+              </li>
+              <li>
+                <i class="fas fa-angle-right"></i> Avoid marketing emails from
+                online stores
+              </li>
+              <li>
+                <i class="fas fa-angle-right"></i> Receive one-time verification
+                codes
+              </li>
+            </ul>
+          </div>
+
+          <div class="special-thanks">
+            <h3><i class="fas fa-heart"></i> Special Thanks</h3>
+            <p>
+              We would like to express our sincere gratitude to the
+              <a href="https://mail.tm/" target="_blank">Mail.tm</a> team for
+              providing their free API service that makes this project possible.
+              Their commitment to privacy and open accessibility has enabled us
+              to create this temporary email solution.
+            </p>
+          </div>
+
+          <div class="warning-box">
+            <div>
+              <i class="fas fa-exclamation-triangle"></i>
+              <h3>Important Note</h3>
+              <p>
+                This service is designed for temporary use only. Do not use
+                temporary email addresses for important accounts, financial
+                services, or long-term communications. Messages are not stored
+                permanently and the email address may be deleted after a period
+                of inactivity.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div id="contact" class="footer-contact">
+          <h3>Contact Us</h3>
+          <div class="social-links">
+            <a
+              href="https://github.com/AadityaGeek"
+              target="_blank"
+              title="GitHub"
+            >
+              <i class="fab fa-github"></i>
+            </a>
+            <a
+              href="https://linkedin.com/in/aadityakr"
+              target="_blank"
+              title="LinkedIn"
+            >
+              <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="mailto:work.aadityakumar@gmail.com" title="Email Us">
+              <i class="fas fa-envelope"></i>
+            </a>
+          </div>
+        </div>
+        <div class="footer-info">
+          <p>
+            &copy; <span id="currentYear"></span> Temp Mail Generator. All
+            Rights Reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
