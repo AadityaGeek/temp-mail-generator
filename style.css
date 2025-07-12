@@ -687,7 +687,7 @@ h2 {
 .warning-box i {
   color: #ff4a4a;
   font-size: 28px;
-  margin-right: 18px;
+  /* margin-right: 18px; */
   margin-top: 4px;
   flex-shrink: 0;
 }
@@ -807,10 +807,13 @@ h2 {
 
 /* Update existing styles for better spacing */
 .info-content h3 {
-  margin-top: 40px;
   margin-bottom: 20px;
   color: var(--text-primary);
   font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .info-content p {
@@ -828,7 +831,6 @@ h2 {
 
   .info-content h3 {
     font-size: 18px;
-    margin-top: 30px;
   }
 }
 
