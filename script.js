@@ -155,12 +155,17 @@ async function checkInbox() {
   inbox.innerHTML = "";
 
   for (let msg of messages) {
+    // Format the received date
+    const receivedDate = new Date(msg.createdAt);
+    const formattedDate = receivedDate.toLocaleString();
+    
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message");
     messageDiv.innerHTML = `
       <div class="message-header">
         <strong>From:</strong> ${msg.from.address}<br>
         <strong>Subject:</strong> ${msg.subject}<br>
+        <strong>Time:</strong> ${formattedDate}<br>
         <strong>Preview:</strong> ${msg.intro}
       </div>
     `;
@@ -364,3 +369,4 @@ window.addEventListener("DOMContentLoaded", () => {
     inboxInterval = setInterval(checkInbox, 5000);
   }
 });
+
