@@ -186,7 +186,7 @@ async function showMessage(id, div) {
     // Create a container for the email content
     const contentDiv = document.createElement("div");
     contentDiv.classList.add("message-content");
-    contentDiv.innerText = body;
+    contentDiv.innerHTML = body; // <-- changed from innerText to innerHTML
 
     // Create controls for the message
     const controlsDiv = document.createElement("div");
