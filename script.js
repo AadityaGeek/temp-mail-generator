@@ -89,8 +89,16 @@ function closeAlert() {
 
 function copyEmail() {
   const email = document.getElementById("emailDisplay").innerText;
+  const copyIcons = document.querySelectorAll(".fa-copy");
 
-  // Check if email is blank or contains the default "---"
+  // Animate all copy icons
+  copyIcons.forEach((icon) => {
+    icon.classList.remove("icon-animate-copy");
+    // Force reflow to restart animation
+    void icon.offsetWidth;
+    icon.classList.add("icon-animate-copy");
+  });
+
   if (!email || email === "---") {
     showAlert("Please generate an email first!");
     return;
@@ -108,9 +116,11 @@ function copyEmail() {
 
 function manualRefresh() {
   const icon = document.getElementById("refreshIcon");
-  icon.classList.add("spin");
+  icon.classList.remove("icon-animate-refresh");
+  void icon.offsetWidth;
+  icon.classList.add("icon-animate-refresh");
   checkInbox().then(() => {
-    setTimeout(() => icon.classList.remove("spin"), 1000);
+    setTimeout(() => icon.classList.remove("icon-animate-refresh"), 800);
   });
 }
 
@@ -241,28 +251,30 @@ async function deleteAccount() {
     return;
   }
 
+  // Animate delete icon
+  const deleteIcon = document.querySelector(".action-button.delete i");
+  if (deleteIcon) {
+    deleteIcon.classList.remove("icon-animate-delete");
+    void deleteIcon.offsetWidth;
+    deleteIcon.classList.add("icon-animate-delete");
+  }
+
   // Clear the current account
   account = null;
   token = null;
   localStorage.removeItem("tm_account");
   localStorage.removeItem("tm_token");
 
-  // Clear the display
   document.getElementById("emailDisplay").innerText = "---";
   document.getElementById("inbox").innerHTML = "<p>No messages yet.</p>";
 
-  // Clear the interval
   if (inboxInterval) {
     clearInterval(inboxInterval);
     inboxInterval = null;
   }
 
-  // Generate new account
-  await generateAccount();
-  showAlert("Email address deleted and new one generated!");
+  showAlert("Email address deleted!");
 }
-
-document.querySelector(".action-button.delete").onclick = deleteAccount;
 
 // Set current year in footer
 document.getElementById("currentYear").textContent = new Date().getFullYear();
