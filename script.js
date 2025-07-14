@@ -40,6 +40,7 @@ async function generateAccount() {
 
     account = { address, password };
     document.getElementById("emailDisplay").innerText = address;
+    localStorage.setItem("tm_account", JSON.stringify(account));
 
     // Login
     const loginRes = await fetch("https://api.mail.tm/token", {
@@ -55,6 +56,7 @@ async function generateAccount() {
 
     const loginData = await loginRes.json();
     token = loginData.token;
+    localStorage.setItem("tm_token", token);
 
     // Start polling inbox
     if (inboxInterval) clearInterval(inboxInterval);
@@ -242,6 +244,8 @@ async function deleteAccount() {
   // Clear the current account
   account = null;
   token = null;
+  localStorage.removeItem("tm_account");
+  localStorage.removeItem("tm_token");
 
   // Clear the display
   document.getElementById("emailDisplay").innerText = "---";
@@ -335,3 +339,16 @@ function linkify(text) {
     '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
   );
 }
+
+// Restore account and token from localStorage on page load
+window.addEventListener("DOMContentLoaded", () => {
+  const savedAccount = localStorage.getItem("tm_account");
+  const savedToken = localStorage.getItem("tm_token");
+  if (savedAccount && savedToken) {
+    account = JSON.parse(savedAccount);
+    token = savedToken;
+    document.getElementById("emailDisplay").innerText = account.address;
+    checkInbox();
+    inboxInterval = setInterval(checkInbox, 5000);
+  }
+});
