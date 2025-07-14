@@ -1194,3 +1194,21 @@ h2 {
 html {
   scroll-behavior: smooth;
 }
+
+/* Style links inside message content for dark theme */
+.message-content a {
+  color: var(--primary-color);
+  text-decoration: underline;
+  transition: color 0.2s;
+  word-break: break-all;
+}
+
+.message-content a:visited {
+  color: #4a9eff; /* or another color you like for visited links */
+}
+
+.message-content a:hover,
+.message-content a:active {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
