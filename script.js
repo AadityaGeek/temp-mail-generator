@@ -158,7 +158,7 @@ async function checkInbox() {
     // Format the received date
     const receivedDate = new Date(msg.createdAt);
     const formattedDate = receivedDate.toLocaleString();
-    
+
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message");
     messageDiv.innerHTML = `
@@ -264,19 +264,19 @@ async function deleteAccount() {
     deleteIcon.classList.add("icon-animate-delete");
   }
 
-  // Clear the current account
-  account = null;
-  token = null;
-  localStorage.removeItem("tm_account");
-  localStorage.removeItem("tm_token");
-
-  document.getElementById("emailDisplay").innerText = "---";
-  document.getElementById("inbox").innerHTML = "<p>No messages yet.</p>";
-
+  // Stop inbox polling first
   if (inboxInterval) {
     clearInterval(inboxInterval);
     inboxInterval = null;
   }
+
+  // Clear the inbox and account info
+  document.getElementById("inbox").innerHTML = "<p>No messages yet.</p>";
+  document.getElementById("emailDisplay").innerText = "---";
+  account = null;
+  token = null;
+  localStorage.removeItem("tm_account");
+  localStorage.removeItem("tm_token");
 
   showAlert("Email address deleted!");
 }
@@ -369,4 +369,3 @@ window.addEventListener("DOMContentLoaded", () => {
     inboxInterval = setInterval(checkInbox, 5000);
   }
 });
-
