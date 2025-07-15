@@ -263,13 +263,7 @@ async function deleteAccount() {
     void deleteIcon.offsetWidth;
     deleteIcon.classList.add("icon-animate-delete");
   }
-
-  // Stop inbox polling first
-  if (inboxInterval) {
-    clearInterval(inboxInterval);
-    inboxInterval = null;
-  }
-
+  
   // Clear the inbox and account info
   document.getElementById("inbox").innerHTML = "<p>No messages yet.</p>";
   document.getElementById("emailDisplay").innerText = "---";
@@ -277,8 +271,14 @@ async function deleteAccount() {
   token = null;
   localStorage.removeItem("tm_account");
   localStorage.removeItem("tm_token");
-
+  
   showAlert("Email address deleted!");
+  
+  // Stop inbox polling first
+  if (inboxInterval) {
+      clearInterval(inboxInterval);
+      inboxInterval = null;
+  }
 }
 
 // Set current year in footer
