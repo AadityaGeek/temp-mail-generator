@@ -124,6 +124,20 @@ function manualRefresh() {
   });
 }
 
+// Add this function to manage read message IDs
+function getReadMessages() {
+  const stored = localStorage.getItem("tm_read_messages");
+  return stored ? JSON.parse(stored) : [];
+}
+
+function markMessageAsRead(messageId) {
+  const readMessages = getReadMessages();
+  if (!readMessages.includes(messageId)) {
+    readMessages.push(messageId);
+    localStorage.setItem("tm_read_messages", JSON.stringify(readMessages));
+  }
+}
+
 async function checkInbox() {
   if (!token) return;
 
@@ -154,6 +168,8 @@ async function checkInbox() {
   // Clear and rebuild inbox only if message count changed
   inbox.innerHTML = "";
 
+  const readMessages = getReadMessages();
+
   for (let msg of messages) {
     // Format the received date
     const receivedDate = new Date(msg.createdAt);
@@ -161,8 +177,12 @@ async function checkInbox() {
     
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message");
-    messageDiv.classList.add(msg.hasAttachments || msg.seen ? "read" : "unread");
+    
+    // Check if message is read (either from API or localStorage)
+    const isRead = msg.hasAttachments || msg.seen || readMessages.includes(msg.id);
+    messageDiv.classList.add(isRead ? "read" : "unread");
     messageDiv.dataset.messageId = msg.id;
+    
     messageDiv.innerHTML = `
       <div class="message-header">
         <strong>From:</strong> ${msg.from.address}<br>
@@ -180,6 +200,7 @@ async function showMessage(id, div) {
   // Mark message as read when opened
   div.classList.remove("unread");
   div.classList.add("read");
+  markMessageAsRead(id);
 
   // Check if message body is already shown
   let bodyDiv = div.querySelector(".message-body");
@@ -269,7 +290,7 @@ async function deleteAccount() {
     void deleteIcon.offsetWidth;
     deleteIcon.classList.add("icon-animate-delete");
   }
-  
+
   // Clear the inbox and account info
   document.getElementById("inbox").innerHTML = "<p>No messages yet.</p>";
   document.getElementById("emailDisplay").innerText = "---";
@@ -277,6 +298,7 @@ async function deleteAccount() {
   token = null;
   localStorage.removeItem("tm_account");
   localStorage.removeItem("tm_token");
+  localStorage.removeItem("tm_read_messages"); // Clear read status too
   
   showAlert("Email address deleted!");
 
@@ -374,4 +396,5 @@ window.addEventListener("DOMContentLoaded", () => {
     inboxInterval = setInterval(checkInbox, 5000);
   }
 });
+
 
