@@ -306,6 +306,32 @@ h2 {
   line-height: 1.6;
   color: var(--text-primary);
   border: 1px solid var(--border-color);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.message.unread {
+  border-left: 4px solid var(--primary-color);
+  background: var(--bg-lighter);
+}
+
+.message.unread::before {
+  content: "●";
+  color: var(--primary-color);
+  font-size: 12px;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.message.read {
+  opacity: 0.8;
+  border-left: 4px solid var(--border-color);
+}
+
+.message:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .message-body {

@@ -158,9 +158,11 @@ async function checkInbox() {
     // Format the received date
     const receivedDate = new Date(msg.createdAt);
     const formattedDate = receivedDate.toLocaleString();
-
+    
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message");
+    messageDiv.classList.add(msg.hasAttachments || msg.seen ? "read" : "unread");
+    messageDiv.dataset.messageId = msg.id;
     messageDiv.innerHTML = `
       <div class="message-header">
         <strong>From:</strong> ${msg.from.address}<br>
@@ -175,6 +177,10 @@ async function checkInbox() {
 }
 
 async function showMessage(id, div) {
+  // Mark message as read when opened
+  div.classList.remove("unread");
+  div.classList.add("read");
+
   // Check if message body is already shown
   let bodyDiv = div.querySelector(".message-body");
 
@@ -273,8 +279,7 @@ async function deleteAccount() {
   localStorage.removeItem("tm_token");
   
   showAlert("Email address deleted!");
-  
-  // Stop inbox polling first
+
   if (inboxInterval) {
       clearInterval(inboxInterval);
       inboxInterval = null;
@@ -369,3 +374,4 @@ window.addEventListener("DOMContentLoaded", () => {
     inboxInterval = setInterval(checkInbox, 5000);
   }
 });
+

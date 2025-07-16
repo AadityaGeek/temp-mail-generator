@@ -16,14 +16,17 @@ A modern, responsive temporary email service that provides instant disposable em
 
 - **🚀 Instant Email Generation:** Create temporary email addresses with a single click
 - **📋 One-Click Copy:** Copy email addresses to clipboard instantly
-- **📬 Real-time Inbox:** Automatic inbox refresh every 5 seconds
+- **📬 Real-time Inbox:** Automatic inbox refresh every 5 seconds with timestamp display
 - **📱 Responsive Design:** Works seamlessly on desktop, tablet, and mobile devices
 - **🔄 Auto-Refresh:** Manual and automatic inbox refresh capabilities
-- **📧 Message Viewer:** Click to expand and view full email content
+- **📧 Message Viewer:** Click to expand and view full email content with clickable links
 - **🗑️ Quick Delete:** Delete current email and generate a new one
 - **🎨 Modern UI:** Clean, dark-themed interface with smooth animations
 - **🔒 Privacy-Focused:** No registration required, completely anonymous
 - **⚡ Fast & Lightweight:** Pure vanilla JavaScript, no frameworks
+- **📖 Read/Unread Status:** Visual indicators to distinguish between read and unread messages
+- **⏰ Message Timestamps:** Display exact time when each email was received
+- **🔗 Link Support:** Automatic link detection and formatting in email content
 
 ---
 
@@ -33,7 +36,7 @@ A modern, responsive temporary email service that provides instant disposable em
 - **Styling:** CSS Custom Properties (CSS Variables), Flexbox, Grid
 - **Icons:** Font Awesome 6.5.1
 - **API:** [Mail.tm](https://mail.tm/) - Free temporary email API
-- **Browser APIs:** Clipboard API, Fetch API
+- **Browser APIs:** Clipboard API, Fetch API, LocalStorage API
 
 ---
 
@@ -91,10 +94,12 @@ A modern, responsive temporary email service that provides instant disposable em
 
 1. **Generate Email:** Click the "Generate Temp Email" button to create a new temporary email address.
 2. **Copy Address:** Use the copy button (📋) to copy the email address to your clipboard.
-3. **Check Messages:** The inbox automatically refreshes every 5 seconds to show new emails.
+3. **Check Messages:** The inbox automatically refreshes every 5 seconds to show new emails with timestamps.
 4. **View Messages:** Click on any message in the inbox to expand and view its full content.
-5. **Refresh Manually:** Use the refresh button (🔄) to manually check for new messages.
-6. **Delete & Regenerate:** Click the delete button (🗑️) to remove the current email and generate a new one.
+5. **Read Status:** Unread messages appear with a cyan border and dot indicator; read messages are slightly dimmed.
+6. **Refresh Manually:** Use the refresh button (🔄) to manually check for new messages.
+7. **Delete & Regenerate:** Click the delete button (🗑️) to remove the current email and generate a new one.
+8. **Persistent Sessions:** Your email session is saved and restored when you return to the page.
 
 ---
 
@@ -122,6 +127,17 @@ The application uses the Mail.tm API with the following endpoints:
 - **Messages:** `https://api.mail.tm/messages`
 
 No additional configuration is required.
+
+---
+
+## 🎨 UI/UX Features
+
+- **Dark Theme:** Modern dark interface optimized for extended use
+- **Visual Feedback:** Animated icons and smooth transitions
+- **Message Status:** Clear visual distinction between read/unread emails
+- **Responsive Design:** Optimized for all screen sizes
+- **Accessibility:** Keyboard navigation and screen reader friendly
+- **Auto-Save:** Session persistence using localStorage
 
 ---
 
@@ -194,6 +210,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **No Permanent Storage:** Messages are not stored permanently
 - **Privacy:** Temporary emails are not suitable for sensitive communications
 - **API Dependency:** This application depends on the Mail.tm API service availability
+- **Session Persistence:** Email sessions are saved locally but will expire after inactivity
 
 ---
 
@@ -206,6 +223,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - [ ] Dark/Light theme toggle
 - [ ] Multiple email management
 - [ ] Browser extension version
+- [ ] Email attachment support
+- [ ] Message filtering and sorting
 
 ---
 
