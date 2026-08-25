@@ -9,6 +9,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   </head>
   <body>
     <header class="sticky-header">
@@ -53,6 +54,13 @@
                 title="Copy Email"
               >
                 <i class="fas fa-copy"></i>
+              </button>
+              <button
+                onclick="showQRCode()"
+                class="icon-button qr-btn"
+                title="Show QR Code"
+              >
+                <i class="fas fa-qrcode"></i>
               </button>
             </div>
           </div>
@@ -222,7 +230,7 @@
             <h3><i class="fas fa-heart"></i> Special Thanks</h3>
             <p>
               We would like to express our sincere gratitude to the
-              <a href="https://mail.tm/" target="_blank">Mail.tm</a> team for
+              <a href="https://mail.gw/" target="_blank">Mail.gw</a> team for
               providing their free API service that makes this project possible.
               Their commitment to privacy and open accessibility has enabled us
               to create this temporary email solution.
@@ -277,6 +285,20 @@
         </div>
       </div>
     </footer>
+
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="qr-modal-overlay" onclick="closeQRModal()">
+      <div class="qr-modal" onclick="event.stopPropagation()">
+        <button class="qr-modal-close" onclick="closeQRModal()" title="Close">
+          <i class="fas fa-times"></i>
+        </button>
+        <h3><i class="fas fa-qrcode"></i> Scan to Send Email</h3>
+        <p class="qr-modal-subtitle">Point your camera at the QR code to quickly address an email</p>
+        <div id="qrcode" class="qr-canvas-wrapper"></div>
+        <p id="qrEmailLabel" class="qr-email-label"></p>
+        <p class="qr-hint"><i class="fas fa-mobile-alt"></i> Scan with any QR reader or camera app</p>
+      </div>
+    </div>
 
     <script src="script.js"></script>
   </body>

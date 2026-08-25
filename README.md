@@ -35,7 +35,7 @@ A modern, responsive temporary email service that provides instant disposable em
 - **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+)
 - **Styling:** CSS Custom Properties (CSS Variables), Flexbox, Grid
 - **Icons:** Font Awesome 6.5.1
-- **API:** [Mail.tm](https://mail.tm/) - Free temporary email API
+- **API:** [Mail.gw](https://mail.gw/) - Free temporary email API
 - **Browser APIs:** Clipboard API, Fetch API, LocalStorage API
 
 ---

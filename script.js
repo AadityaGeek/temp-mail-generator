@@ -7,7 +7,7 @@ async function generateAccount() {
     const username = Math.random().toString(36).substring(2, 10);
 
     // Get domains
-    const domainRes = await fetch("https://api.mail.tm/domains");
+    const domainRes = await fetch("https://api.mail.gw/domains");
     if (!domainRes.ok) {
       showAlert("Failed to fetch email domains. Please try again.");
       return;
@@ -27,7 +27,7 @@ async function generateAccount() {
     const password = "password123";
 
     // Create account
-    const res = await fetch("https://api.mail.tm/accounts", {
+    const res = await fetch("https://api.mail.gw/accounts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address, password }),
@@ -43,7 +43,7 @@ async function generateAccount() {
     localStorage.setItem("tm_account", JSON.stringify(account));
 
     // Login
-    const loginRes = await fetch("https://api.mail.tm/token", {
+    const loginRes = await fetch("https://api.mail.gw/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address, password }),
@@ -141,7 +141,7 @@ function markMessageAsRead(messageId) {
 async function checkInbox() {
   if (!token) return;
 
-  const inboxRes = await fetch("https://api.mail.tm/messages", {
+  const inboxRes = await fetch("https://api.mail.gw/messages", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -211,7 +211,7 @@ async function showMessage(id, div) {
   }
 
   try {
-    const res = await fetch(`https://api.mail.tm/messages/${id}`, {
+    const res = await fetch(`https://api.mail.gw/messages/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -374,6 +374,42 @@ window.addEventListener("scroll", () => {
       link.classList.add("active");
     }
   });
+});
+
+function showQRCode() {
+  const email = document.getElementById("emailDisplay").innerText;
+  if (!email || email === "---") {
+    showAlert("Please generate an email first!");
+    return;
+  }
+
+  // Clear previous QR code
+  const qrContainer = document.getElementById("qrcode");
+  qrContainer.innerHTML = "";
+
+  // Generate new QR code encoding a mailto: URI
+  new QRCode(qrContainer, {
+    text: `mailto:${email}`,
+    width: 220,
+    height: 220,
+    colorDark: "#0f172a",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H,
+  });
+
+  document.getElementById("qrEmailLabel").textContent = email;
+  document.getElementById("qrModal").classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function closeQRModal() {
+  document.getElementById("qrModal").classList.remove("show");
+  document.body.style.overflow = "";
+}
+
+// Close QR modal with Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeQRModal();
 });
 
 function linkify(text) {
