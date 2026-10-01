@@ -336,65 +336,124 @@ h2 {
 
 .message-body {
   background: var(--bg-lighter);
-  padding: var(--spacing-md);
   margin-top: var(--spacing-sm);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  position: relative;
-  max-height: 400px;
-  overflow-y: auto;
+  overflow: hidden;
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
-.message-content {
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin-bottom: var(--spacing-md);
+.message-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.message-toolbar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+}
+
+.message-toolbar-title i {
+  color: var(--primary-color);
+  font-size: 13px;
 }
 
 .message-controls {
   display: flex;
-  gap: 10px;
-  position: sticky;
-  bottom: 0;
-  right: 0;
-  padding: var(--spacing-sm);
-  background: var(--bg-lighter);
-  border-top: 1px solid var(--border-color);
-  justify-content: flex-end;
+  gap: 8px;
+  align-items: center;
 }
 
 .message-close,
 .message-copy {
-  background: var(--bg-light);
-  border: none;
+  background: var(--bg-lighter);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 13px;
 }
 
 .message-close:hover {
   background: #ff4a4a;
+  border-color: #ff4a4a;
   color: white;
+  transform: scale(1.05);
 }
 
 .message-copy:hover {
   background: var(--primary-color);
+  border-color: var(--primary-color);
   color: var(--bg-main);
+  transform: scale(1.05);
 }
 
-/* Make sure the message is selectable */
 .message-content {
+  padding: var(--spacing-md);
+  max-height: 360px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 14px;
   user-select: text;
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
+}
+
+.message-content pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+.message-content a {
+  color: var(--primary-color);
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.message-content a:hover {
+  color: var(--primary-hover);
+}
+
+/* Custom scrollbar for message content */
+.message-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.message-content::-webkit-scrollbar-track {
+  background: var(--bg-lighter);
+}
+
+.message-content::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.message-content::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
 }
 
 .message strong {
@@ -587,8 +646,13 @@ h2 {
   }
 
   .message-body {
+    font-size: 13px;
+  }
+
+  .message-content {
     padding: var(--spacing-sm);
     font-size: 13px;
+    max-height: 300px;
   }
 
   .message {

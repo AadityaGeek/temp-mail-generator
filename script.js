@@ -1,62 +1,33 @@
 let account = null;
 let token = null;
 let inboxInterval = null;
+let isCheckingInbox = false;
 
 async function generateAccount() {
   try {
-    const username = Math.random().toString(36).substring(2, 10);
-
-    // Get domains
-    const domainRes = await fetch("https://api.mail.gw/domains");
-    if (!domainRes.ok) {
-      showAlert("Failed to fetch email domains. Please try again.");
-      return;
-    }
-
-    const domainData = await domainRes.json();
-    if (
-      !domainData["hydra:member"] ||
-      domainData["hydra:member"].length === 0
-    ) {
-      showAlert("No email domains available. Please try again later.");
-      return;
-    }
-
-    const domain = domainData["hydra:member"][0].domain;
-    const address = `${username}@${domain}`;
-    const password = "password123";
-
-    // Create account
-    const res = await fetch("https://api.mail.gw/accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address, password }),
-    });
-
+    const res = await fetch(
+      "https://api.guerrillamail.com/ajax.php?f=get_email_address"
+    );
     if (!res.ok) {
       showAlert("Failed to create temp email. Please try again.");
       return;
     }
 
-    account = { address, password };
-    document.getElementById("emailDisplay").innerText = address;
-    localStorage.setItem("tm_account", JSON.stringify(account));
-
-    // Login
-    const loginRes = await fetch("https://api.mail.gw/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address, password }),
-    });
-
-    if (!loginRes.ok) {
-      showAlert("Account created but failed to login. Please try again.");
+    const data = await res.json();
+    if (!data.email_addr || !data.sid_token) {
+      showAlert("Failed to create temp email. Please try again.");
       return;
     }
 
-    const loginData = await loginRes.json();
-    token = loginData.token;
+    account = { address: data.email_addr };
+    token = data.sid_token;
+
+    document.getElementById("emailDisplay").innerText = account.address;
+    localStorage.setItem("tm_account", JSON.stringify(account));
     localStorage.setItem("tm_token", token);
+
+    // Reset inbox display
+    document.getElementById("inbox").innerHTML = "<p>No messages yet.</p>";
 
     // Start polling inbox
     if (inboxInterval) clearInterval(inboxInterval);
@@ -115,12 +86,16 @@ function copyEmail() {
 }
 
 function manualRefresh() {
-  const icon = document.getElementById("refreshIcon");
-  icon.classList.remove("icon-animate-refresh");
-  void icon.offsetWidth;
-  icon.classList.add("icon-animate-refresh");
-  checkInbox().then(() => {
-    setTimeout(() => icon.classList.remove("icon-animate-refresh"), 800);
+  const icons = document.querySelectorAll(".fa-sync-alt");
+  icons.forEach((icon) => {
+    icon.classList.remove("icon-animate-refresh");
+    void icon.offsetWidth;
+    icon.classList.add("icon-animate-refresh");
+  });
+  checkInbox().finally(() => {
+    setTimeout(() => {
+      icons.forEach((icon) => icon.classList.remove("icon-animate-refresh"));
+    }, 800);
   });
 }
 
@@ -132,71 +107,122 @@ function getReadMessages() {
 
 function markMessageAsRead(messageId) {
   const readMessages = getReadMessages();
-  if (!readMessages.includes(messageId)) {
-    readMessages.push(messageId);
+  const idStr = String(messageId);
+  if (!readMessages.includes(idStr)) {
+    readMessages.push(idStr);
     localStorage.setItem("tm_read_messages", JSON.stringify(readMessages));
   }
 }
 
 async function checkInbox() {
-  if (!token) return;
+  if (!token || isCheckingInbox) return;
+  isCheckingInbox = true;
 
-  const inboxRes = await fetch("https://api.mail.gw/messages", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    // 1. Trigger the server to process any new incoming messages
+    try {
+      await fetch(
+        `https://api.guerrillamail.com/ajax.php?f=check_email&seq=0&sid_token=${token}`
+      );
+    } catch (e) {
+      // Ignore network glitch on pre-trigger
+    }
 
-  const inboxData = await inboxRes.json();
-  const messages = inboxData["hydra:member"];
+    // 2. Fetch the complete persistent inbox list
+    const inboxRes = await fetch(
+      `https://api.guerrillamail.com/ajax.php?f=get_email_list&offset=0&sid_token=${token}`
+    );
 
-  const inbox = document.getElementById("inbox");
+    if (!inboxRes.ok) return;
 
-  // Only clear the inbox if there are no messages
-  if (messages.length === 0) {
-    inbox.innerHTML = "<p>No messages yet.</p>";
-    return;
-  }
+    const inboxData = await inboxRes.json();
 
-  // Check if we need to update the inbox
-  const existingMessages = inbox.querySelectorAll(".message");
-  if (existingMessages.length === messages.length) {
-    // Same number of messages, no need to refresh
-    return;
-  }
+    if (inboxData.error) {
+      if (inboxInterval) {
+        clearInterval(inboxInterval);
+        inboxInterval = null;
+      }
+      account = null;
+      token = null;
+      localStorage.removeItem("tm_account");
+      localStorage.removeItem("tm_token");
+      document.getElementById("emailDisplay").innerText = "---";
+      document.getElementById("inbox").innerHTML =
+        "<p>Session expired. Please generate a new email.</p>";
+      return;
+    }
 
-  // Clear and rebuild inbox only if message count changed
-  inbox.innerHTML = "";
+    const messages = Array.isArray(inboxData.list) ? inboxData.list : [];
+    const inbox = document.getElementById("inbox");
 
-  const readMessages = getReadMessages();
+    // Only clear the inbox if there are no messages
+    if (messages.length === 0) {
+      inbox.innerHTML = "<p>No messages yet.</p>";
+      return;
+    }
 
-  for (let msg of messages) {
-    // Format the received date
-    const receivedDate = new Date(msg.createdAt);
-    const formattedDate = receivedDate.toLocaleString();
-    
-    const messageDiv = document.createElement("div");
-    messageDiv.classList.add("message");
-    
-    // Check if message is read (either from API or localStorage)
-    const isRead = msg.hasAttachments || msg.seen || readMessages.includes(msg.id);
-    messageDiv.classList.add(isRead ? "read" : "unread");
-    messageDiv.dataset.messageId = msg.id;
-    
-    messageDiv.innerHTML = `
-      <div class="message-header">
-        <strong>From:</strong> ${msg.from.address}<br>
-        <strong>Subject:</strong> ${msg.subject}<br>
-        <strong>Time:</strong> ${formattedDate}<br>
-        <strong>Preview:</strong> ${msg.intro}
-      </div>
-    `;
-    messageDiv.onclick = () => showMessage(msg.id, messageDiv);
-    inbox.appendChild(messageDiv);
+    // Check if we need to update the inbox
+    const existingIds = Array.from(inbox.querySelectorAll(".message"))
+      .map((m) => m.dataset.messageId)
+      .join(",");
+    const newIds = messages.map((m) => String(m.mail_id)).join(",");
+
+    if (existingIds === newIds) {
+      // Same messages, no need to refresh DOM
+      return;
+    }
+
+    // Check if any message is currently expanded so we can keep it open
+    const expandedId = inbox
+      .querySelector(".message-body")
+      ?.closest(".message")?.dataset.messageId;
+
+    // Clear and rebuild inbox
+    inbox.innerHTML = "";
+    const readMessages = getReadMessages();
+
+    for (let msg of messages) {
+      const msgId = String(msg.mail_id);
+      let formattedDate;
+      if (msg.mail_timestamp && Number(msg.mail_timestamp) > 0) {
+        formattedDate = new Date(Number(msg.mail_timestamp) * 1000).toLocaleString();
+      } else if (msg.mail_date) {
+        formattedDate = msg.mail_date;
+      } else {
+        formattedDate = new Date().toLocaleString();
+      }
+
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("message");
+
+      const isRead = Number(msg.mail_read) === 1 || readMessages.includes(msgId);
+      messageDiv.classList.add(isRead ? "read" : "unread");
+      messageDiv.dataset.messageId = msgId;
+
+      messageDiv.innerHTML = `
+        <div class="message-header">
+          <strong>From:</strong> ${escapeHtml(msg.mail_from)}<br>
+          <strong>Subject:</strong> ${escapeHtml(msg.mail_subject || "(No Subject)")}<br>
+          <strong>Time:</strong> ${escapeHtml(formattedDate)}<br>
+          <strong>Preview:</strong> ${escapeHtml(msg.mail_excerpt || "")}
+        </div>
+      `;
+      messageDiv.onclick = () => showMessage(msgId, messageDiv, msg.mail_body);
+      inbox.appendChild(messageDiv);
+
+      // Reopen message body if it was previously open
+      if (expandedId && expandedId === msgId) {
+        showMessage(msgId, messageDiv, msg.mail_body);
+      }
+    }
+  } catch (error) {
+    console.error("Error checking inbox:", error);
+  } finally {
+    isCheckingInbox = false;
   }
 }
 
-async function showMessage(id, div) {
+async function showMessage(id, div, cachedBody) {
   // Mark message as read when opened
   div.classList.remove("unread");
   div.classList.add("read");
@@ -211,59 +237,75 @@ async function showMessage(id, div) {
   }
 
   try {
-    const res = await fetch(`https://api.mail.gw/messages/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    let body = cachedBody;
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch message");
+    if (!body) {
+      const res = await fetch(
+        `https://api.guerrillamail.com/ajax.php?f=fetch_email&email_id=${id}&sid_token=${token}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch message");
+      }
+
+      const data = await res.json();
+      body = data.mail_body || "No message content.";
     }
-
-    const data = await res.json();
-    const body = data.text || "No message content.";
 
     const newDiv = document.createElement("div");
     newDiv.classList.add("message-body");
 
-    // Create a container for the email content
-    const contentDiv = document.createElement("div");
-    contentDiv.classList.add("message-content");
-    contentDiv.innerHTML = linkify(body); // <-- changed from innerText to innerHTML
+    // Header toolbar with title and action buttons at top
+    const toolbarDiv = document.createElement("div");
+    toolbarDiv.classList.add("message-toolbar");
 
-    // Create controls for the message
+    const toolbarTitle = document.createElement("span");
+    toolbarTitle.classList.add("message-toolbar-title");
+    toolbarTitle.innerHTML = '<i class="fas fa-envelope-open-text"></i> Message Content';
+
+    // Controls
     const controlsDiv = document.createElement("div");
     controlsDiv.classList.add("message-controls");
+
+    // Add a copy button
+    const copyButton = document.createElement("button");
+    copyButton.classList.add("message-copy");
+    copyButton.setAttribute("title", "Copy email content");
+    copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+    copyButton.onclick = (e) => {
+      e.stopPropagation(); // Prevent event from bubbling up
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = body;
+      const textToCopy = tempDiv.textContent || tempDiv.innerText || body;
+      navigator.clipboard
+        .writeText(textToCopy.trim())
+        .then(() => showAlert("Message content copied to clipboard!"))
+        .catch(() => showAlert("Failed to copy message content"));
+    };
 
     // Add a close button
     const closeButton = document.createElement("button");
     closeButton.classList.add("message-close");
+    closeButton.setAttribute("title", "Close message");
     closeButton.innerHTML = '<i class="fas fa-times"></i>';
     closeButton.onclick = (e) => {
       e.stopPropagation(); // Prevent event from bubbling up
       newDiv.remove();
     };
 
-    // Add a copy button
-    const copyButton = document.createElement("button");
-    copyButton.classList.add("message-copy");
-    copyButton.innerHTML = '<i class="fas fa-copy"></i>';
-    copyButton.onclick = (e) => {
-      e.stopPropagation(); // Prevent event from bubbling up
-      navigator.clipboard
-        .writeText(body)
-        .then(() => showAlert("Message content copied to clipboard!"))
-        .catch(() => showAlert("Failed to copy message content"));
-    };
-
-    // Add buttons to controls
     controlsDiv.appendChild(copyButton);
     controlsDiv.appendChild(closeButton);
 
-    // Add both content and controls to the message body
+    toolbarDiv.appendChild(toolbarTitle);
+    toolbarDiv.appendChild(controlsDiv);
+
+    // Create a container for the email content
+    const contentDiv = document.createElement("div");
+    contentDiv.classList.add("message-content");
+    contentDiv.innerHTML = formatMessageBody(body);
+
+    newDiv.appendChild(toolbarDiv);
     newDiv.appendChild(contentDiv);
-    newDiv.appendChild(controlsDiv);
 
     // Add click stop propagation to prevent collapse when clicking inside
     newDiv.onclick = (e) => {
@@ -291,6 +333,18 @@ async function deleteAccount() {
     deleteIcon.classList.add("icon-animate-delete");
   }
 
+  try {
+    if (account.address && token) {
+      await fetch(
+        `https://api.guerrillamail.com/ajax.php?f=forget_me&email_addr=${encodeURIComponent(
+          account.address
+        )}&sid_token=${token}`
+      );
+    }
+  } catch (e) {
+    console.warn("Failed to notify server of deletion", e);
+  }
+
   // Clear the inbox and account info
   document.getElementById("inbox").innerHTML = "<p>No messages yet.</p>";
   document.getElementById("emailDisplay").innerText = "---";
@@ -299,12 +353,12 @@ async function deleteAccount() {
   localStorage.removeItem("tm_account");
   localStorage.removeItem("tm_token");
   localStorage.removeItem("tm_read_messages"); // Clear read status too
-  
+
   showAlert("Email address deleted!");
 
   if (inboxInterval) {
-      clearInterval(inboxInterval);
-      inboxInterval = null;
+    clearInterval(inboxInterval);
+    inboxInterval = null;
   }
 }
 
@@ -412,10 +466,36 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeQRModal();
 });
 
+function escapeHtml(text) {
+  if (!text) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatMessageBody(body) {
+  if (!body) return "<em>No message content.</em>";
+  // If the body already contains HTML tags, ensure links open safely in a new tab
+  if (/<[a-z][\s\S]*>/i.test(body)) {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = body;
+    tempDiv.querySelectorAll("a").forEach((a) => {
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+    });
+    return tempDiv.innerHTML;
+  }
+  // Plain text: escape HTML and detect URLs
+  return linkify(escapeHtml(body));
+}
+
 function linkify(text) {
   // Regex to match URLs (http, https)
   return text.replace(
-    /(https?:\/\/[^\s\]\)]+)/g,
+    /(https?:\/\/[^\s<>"']+)/g,
     '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
   );
 }
@@ -425,11 +505,30 @@ window.addEventListener("DOMContentLoaded", () => {
   const savedAccount = localStorage.getItem("tm_account");
   const savedToken = localStorage.getItem("tm_token");
   if (savedAccount && savedToken) {
-    account = JSON.parse(savedAccount);
-    token = savedToken;
-    document.getElementById("emailDisplay").innerText = account.address;
-    checkInbox();
-    inboxInterval = setInterval(checkInbox, 5000);
+    try {
+      account = JSON.parse(savedAccount);
+      token = savedToken;
+      // If old mail.gw token or invalid session, clean it up
+      if (
+        token.includes(".") ||
+        !account.address ||
+        account.address.includes("@mail.gw")
+      ) {
+        account = null;
+        token = null;
+        localStorage.removeItem("tm_account");
+        localStorage.removeItem("tm_token");
+        return;
+      }
+      document.getElementById("emailDisplay").innerText = account.address;
+      checkInbox();
+      inboxInterval = setInterval(checkInbox, 5000);
+    } catch (e) {
+      account = null;
+      token = null;
+      localStorage.removeItem("tm_account");
+      localStorage.removeItem("tm_token");
+    }
   }
 });
 

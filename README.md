@@ -1,6 +1,6 @@
 # 📧 Temp Mail Generator
 
-A modern, responsive temporary email service that provides instant disposable email addresses to protect your privacy and avoid spam. Built with vanilla JavaScript and powered by the Mail.tm API.
+A modern, responsive temporary email service that provides instant disposable email addresses to protect your privacy and avoid spam. Built with vanilla JavaScript and powered by the Guerrilla Mail API.
 
 ![Temp Mail Generator Screenshot](images/temp-mail-generator.png)
 
@@ -35,7 +35,7 @@ A modern, responsive temporary email service that provides instant disposable em
 - **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+)
 - **Styling:** CSS Custom Properties (CSS Variables), Flexbox, Grid
 - **Icons:** Font Awesome 6.5.1
-- **API:** [Mail.gw](https://mail.gw/) - Free temporary email API
+- **API:** [Guerrilla Mail](https://www.guerrillamail.com/) - Free, CORS-enabled temporary email API
 - **Browser APIs:** Clipboard API, Fetch API, LocalStorage API
 
 ---
@@ -119,14 +119,14 @@ temp-mail-generator/
 
 ## 🔧 Configuration
 
-The application uses the Mail.tm API with the following endpoints:
+The application uses the Guerrilla Mail API with the following endpoints:
 
-- **Domains:** `https://api.mail.tm/domains`
-- **Account Creation:** `https://api.mail.tm/accounts`
-- **Authentication:** `https://api.mail.tm/token`
-- **Messages:** `https://api.mail.tm/messages`
+- **Email Generation:** `https://api.guerrillamail.com/ajax.php?f=get_email_address`
+- **Inbox Polling & List:** `https://api.guerrillamail.com/ajax.php?f=get_email_list` & `check_email`
+- **Fetch Message:** `https://api.guerrillamail.com/ajax.php?f=fetch_email`
+- **Forget / Delete Session:** `https://api.guerrillamail.com/ajax.php?f=forget_me`
 
-No additional configuration is required.
+No API keys or additional configuration are required.
 
 ---
 
@@ -198,7 +198,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## 🙏 Acknowledgments
 
-- **[Mail.tm](https://mail.tm/):** For the free API service
+- **[Guerrilla Mail](https://www.guerrillamail.com/):** For the free, CORS-enabled temporary email API service
 - **[Font Awesome](https://fontawesome.com/):** For the icons
 - **Community:** Thanks to all contributors and users
 
@@ -209,7 +209,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **Temporary Use Only:** Do not use for important accounts or financial services
 - **No Permanent Storage:** Messages are not stored permanently
 - **Privacy:** Temporary emails are not suitable for sensitive communications
-- **API Dependency:** This application depends on the Mail.tm API service availability
+- **API Dependency:** This application depends on the Guerrilla Mail API service availability
 - **Session Persistence:** Email sessions are saved locally but will expire after inactivity
 
 ---
