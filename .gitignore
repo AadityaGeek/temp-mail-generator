@@ -1,0 +1,12 @@
+# Brag Video Generator Output
+brag-output/
+brag-output*/
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# OS and temporary files
+.DS_Store
+Thumbs.db
+*.log

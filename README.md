@@ -2,7 +2,7 @@
 
 A modern, responsive temporary email service that provides instant disposable email addresses to protect your privacy and avoid spam. Built with vanilla JavaScript and powered by the Guerrilla Mail API.
 
-![Temp Mail Generator Screenshot](images/temp-mail-generator.png)
+https://github.com/user-attachments/assets/8f987b8e-2a18-4c17-9297-d0ef9e49b379
 
 ![Temp Mail Generator](https://img.shields.io/badge/Status-Active-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-blue)
@@ -27,6 +27,12 @@ A modern, responsive temporary email service that provides instant disposable em
 - **📖 Read/Unread Status:** Visual indicators to distinguish between read and unread messages
 - **⏰ Message Timestamps:** Display exact time when each email was received
 - **🔗 Link Support:** Automatic link detection and formatting in email content
+
+---
+
+## 📸 Interface Preview
+
+![Temp Mail Generator Screenshot](images/temp-mail-generator.png)
 
 ---
 
